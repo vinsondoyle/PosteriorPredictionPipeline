@@ -1,0 +1,11 @@
+BEGIN mrbayes;
+execute data.nex;
+log start file=data;
+set autoclose=yes;
+lset nst=6 rates=invgamma;
+prset statefreqpr=fixed(equal);
+mcmcp ngen=2500000 nruns=4 nchains=4 printfreq=10000 samplefreq=1000;
+mcmcp  checkpoint=yes;
+mcmc;
+log stop;
+END;
