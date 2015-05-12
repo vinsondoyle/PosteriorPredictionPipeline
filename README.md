@@ -1,5 +1,5 @@
 
-== Posterior Prediction Manual ==
+## Posterior Prediction Manual ##
 
 This is an ongoing effort to produce a useful guide for posterior prediction. The pipeline outlined below is split into seven sections. There are scripts (bash & python) associated with each section that can be found here [[https://github.com/vinsondoyle/PosteriorPredictionPipeline]] or by contacting Vinson Doyle *vdoyle at agcenter.lsu.edu* or Jeremy Brown.
 
