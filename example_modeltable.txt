@@ -1,4 +1,0 @@
-locu1.nex	GTR+I+G
-locus2.nex	JC
-locus3.nex	SYM+G
-locus4.nex	TIM3ef+G
