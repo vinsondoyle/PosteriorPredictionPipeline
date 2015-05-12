@@ -59,8 +59,9 @@ b) empDataList is a text file with the absolute file paths to each data file to 
 c) <code> qsub wq_mb.pbs </code>
 If you are running 4 runs with 4 chains each, it will only be necessary to modify the wq_mb.pbs file. In addition to changing the standard PBS flags appropriately, change the WORKDIR variable to the absolute path to the main directory. Make sure that the FILES variable is set to read empDataList.
 	 		
-			If you are running fewer runs or chains, it will be more efficient to change some variables in both wq_mb.sh and wq_mb.pbs:
-				1) If you are running fewer than a total of 16 chains, modify the PROCS variable to a factor of 16 in wq_mb.sh.
-				2) If you are running fewer than a total of 16 chains, modify the WPN variable to 16 divided by the number of PROCS.
-		
+If you are running fewer runs or chains, it will be more efficient to change some variables in both wq_mb.sh and wq_mb.pbs:
+1) If you are running fewer than a total of 16 chains, modify the PROCS variable to a factor of 16 in wq_mb.sh.
+2) If you are running fewer than a total of 16 chains, modify the WPN variable to 16 divided by the number of PROCS.
+
+
 3. Check to see if all tasks were executed. You can check the output file specified in wq_mb.pbs (#PBS -o). For example: <code> grep "True" outputFile | wc -l </code>  should equal the number of empirical nexus files. You may also want to confirm that the expected number of generations were completed for each analysis by checking the number of lines in one of the .p files for each empirical dataset.
