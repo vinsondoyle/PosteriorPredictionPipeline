@@ -1,0 +1,8 @@
+Begin MrConverge;
+	log mrconverge.log;
+	set nruns=2;
+	set burncriterion=3;
+	set filename=data;
+	EVALB;
+	log stop;
+End;

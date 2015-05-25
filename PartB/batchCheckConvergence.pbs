@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -q single
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=24:00:00
+#PBS -o ConvergeCheck
+#PBS -N ConvergeCheck
+#PBS -A hpc_phyleaux05
+
+cd $PBS_O_WORKDIR
+./batchCheckConvergence.sh
