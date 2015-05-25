@@ -66,7 +66,7 @@ If you are running fewer runs or chains, it will be more efficient to change som
 
 3. Check to see if all tasks were executed. You can check the output file specified in wq_mb.pbs (#PBS -o). For example: <code> grep "True" outputFile | wc -l </code>  should equal the number of empirical nexus files. You may also want to confirm that the expected number of generations were completed for each analysis by checking the number of lines in one of the .p files for each empirical dataset.
 
-===Part B. Check for convergence and determine burnin for subsampling===
+###Part B. Check for convergence and determine burnin for subsampling###
 
 This part assumes that you have run your empirical analyses as described above and did not use MrConverge to monitor MrBayes runs. Here you will use MrConverge (distributed by Alan Lemmon) to check for convergence and determine burnin in order to subsample from the posterior distribution for posterior predictive simulations.
 
