@@ -1,0 +1,11 @@
+datfile=data.nex;
+logfile=PUMA.log;
+conblockfile=mrc.conblock;
+bayesblockfile=data.bb;
+burnin=0;
+partition=false;
+runMrC=false;
+anProg=MB;
+burnMrC=false;
+testOutFile=testStat.out;
+verbose=1;
