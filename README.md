@@ -65,3 +65,48 @@ If you are running fewer runs or chains, it will be more efficient to change som
 
 
 3. Check to see if all tasks were executed. You can check the output file specified in wq_mb.pbs (#PBS -o). For example: <code> grep "True" outputFile | wc -l </code>  should equal the number of empirical nexus files. You may also want to confirm that the expected number of generations were completed for each analysis by checking the number of lines in one of the .p files for each empirical dataset.
+
+###Part B. Check for convergence and determine burnin for subsampling###
+
+This part assumes that you have run your empirical analyses as described above and did not use MrConverge to monitor MrBayes runs. Here you will use MrConverge (distributed by Alan Lemmon) to check for convergence and determine burnin in order to subsample from the posterior distribution for posterior predictive simulations.
+
+<br>Files needed for Part B:<br />
+*mrc.conblock (generic file: make sure nruns is set appropriately and filename is set to "data")<br />
+*MrConverge1b2.5.jar (you need this version to use EVALB option)<br />
+*mrc_convergenceSetup.sh<br />
+*mrc_convergenceSetup.pbs<br />
+*wq_mrc.pbs<br />
+*wq_mrc.sh<br />
+*wq.py<br />
+*checkConvergence.py<br />
+*batchCheckConvergence.sh<br />
+*batchCheckConvergence.pbs<br />
+
+<br>Optional Files:<br />
+batchMRC.sh - this is written to utilize the 12 processors on the linux box in A248. This is an alternative to running the wq scripts above. If you want to run it on a different machine, just make sure you change "12" on line 15 to equal the number of processors on your machine.<br />
+<br> <br />
+'''1. Create a list of file paths to the directories containing your empirical analyses''' (a - "empDataDirectories") and the paths to the mrc.conblock files (b - "MRCDataList"). <br />
+*'''a''')  Assuming you have a file called "empDataList" that list the paths to your bayesblock files, to create your empDataDirectories file: <code> for f in $(cat empDataList); do dirN=`dirname $f`; echo $dirN"/" >> empDataDirectories; done </code>
+
+*'''b''')  Assuming you have a file called "empDataList" that list the paths to your bayesblock files, to create your MRCDataList file: <code> for f in $(cat empDataList); do dirN=`dirname $f`; echo $dirN"/mrc.conblock" >> MRCDataList; done </code>
+
+'''2. Make sure you have all of the files necessary to setup for MrConverge.''' Modify the mrc.conblock file to make sure that "nruns" is set to the number used for the empirical analyses and "filename=data;" and place in the main directory.  Make sure that MrConverge1b2.5.jar is in the main directory.
+
+'''3. Setup for MrConverge.''' Assuming you have the following files in your main directory: mrc.conblock (modified as specified above), MrConverge1b2.5.jar, mrc_convergenceSetup.sh, mrc_convergenceSetup.pbs: <code> qsub mrc_convergenceSetup.pbs </code>
+
+Step 3 will renames the empirical .p and.t files so that they can be read by MrConverge, modify the mrc.conblock file appropriately and place in the respective directories, place MrConverge in the correct place for each analysis below.
+
+'''4. Run MrConverge with''' <code> qsub wq_mrc.pbs </code> 
+
+Alternatively, you can use batchMRC.sh to run it on the linux box in LSB248.
+
+'''5. Check to make sure that all tasks ran.''' Wait for step 4 to complete then, using the same approach as in A4 above, check that all tasks were submitted by wq.
+
+6. Check that all empirical analyses have converged. <br />
+*'''a''') Generate list of paths to mrconverge.log files: <code> for f in $(cat empDataDirectories); do echo $f"mrconverge.log" >> MRCLogList; done </code>
+
+*'''b''') Make sure that checkConvergence.py, batchCheckConvergence.sh, and batchCheckConvergence.pbs are all in the main directory.
+
+*'''c''') <code> qsub batchCheckConvergence.pbs </code>
+
+*'''d''') step 3 will generate a text file ("notConverged.txt"). If the MaxBppCI for the statistic corresponding to the maximum Opt Burn value is greater than 0.1 then the MaxBppCI and the path to the mrconverge.log file will be output to this file. This indicates that these runs may not have converged. If there is nothing in "notConverged.txt", then all runs appear to have converged and you can move on to subsampling and simulating posterior predictive datasets.
