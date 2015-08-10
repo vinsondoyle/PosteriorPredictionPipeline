@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -q single
+#PBS -l nodes=1:ppn=1
+#PBS -l walltime=04:00:00
+#PBS -o setupPP_mb
+#PBS -N setupPP_mb
+#PBS -A hpc_phyleaux03
+
+cd $PBS_O_WORKDIR
+./setupPP_mb.sh empDataDirectories 1000000 500 2 4
+
