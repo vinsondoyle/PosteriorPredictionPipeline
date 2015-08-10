@@ -111,7 +111,48 @@ Alternatively, you can use batchMRC.sh to run it on the linux box in LSB248.
 
 *'''d''') step 3 will generate a text file ("notConverged.txt"). If the MaxBppCI for the statistic corresponding to the maximum Opt Burn value is greater than 0.1 then the MaxBppCI and the path to the mrconverge.log file will be output to this file. This indicates that these runs may not have converged. If there is nothing in "notConverged.txt", then all runs appear to have converged and you can move on to subsampling and simulating posterior predictive datasets.
 
-===Part D. Analyze posterior predictive datasets with MrBayes===
+###Part C. Simulate posterior predictive datasets###
+
+<br>Files needed for Part C:<br />
+*subsamplerBurn3.2.sh<br />
+*stationarySubsamplev2.2.sh '''OR''' stationarySubsamplev2.4.sh - the former is for nruns=2 and the latter nruns=4 (to be made more flexible in the future)<br />
+*stationarySubsample.pbs<br />
+*PuMAv0.907c.jar<br />
+*seq-gen (compiled on the appropriate system)<br />
+*puma.in (generic file - So that the batchPuma.sh runs properly, make sure these parameters are set as such: datfile=data.nex; logfile=data; conblockfile=data.conblock; bayesblockfile=data.bayesblock;)<br />
+*batchPuma.sh<br />
+*addBatchMissPatterns.sh<br />
+*repMissPatternsVD.py<br />
+*ctSubTrees.sh<br />
+
+<br>Optional Files:<br />
+*subsampler_oops.sh - cleans up after step 1 below if the number of trees is not 100<br />
+*batchPumaCleanup.sh<br />
+<br> <br />
+
+'''1. Make sure stationarySubsamplev2.2.sh (or ...2.4.sh, see above), stationarySubsample.pbs, subsamplerBurn3.2.sh are all in the base directory.'''<br />
+
+'''2. Sample a total of 100 trees and associated parameter values from empirical stationary distribution.'''<br />
+*<code>qsub stationarySubsample.pbs</code>
+
+'''3. Check to make sure you have subsampled 100 trees.'''<br />
+*<code> ./ctSubtrees.sh</code><br />
+*If there are 100 total trees across all .t files in each empDataDirectory, then there will not be any output and all is well. Move on.<br />
+*If there are '''not''' 100 total trees across all .t files in each empDataDirectory, then figure out the problem and run subsampler_oops.sh to reset everything so you can run qsub stationarySubsample.pbs again.<br />
+'''4. Setup for simulating posterior predictive data.''' Make sure PuMAv0.907c.jar, generic puma.in file, and seq-gen are all in the base directory. Important: make sure you have compiled seq-gen on the particular system you are using.<br />
+*<code> ./batchPumaSetup.sh</code><br />
+'''5. Enable the use of the GUI required by PuMA.''' This is done on SuperMike-II by logging out (<code> exit </code>) and logging back in with x-forwarding <code>ssh -X username@hostname</code><br />
+'''6. Initiate an interactive session with x-forwarding:''' <code>qsub -I -l nodes=1:ppn=16 -l walltime=04:00:00 -X -A ''allocation''</code><br />
+*Replace ''allocation'' with the appropriate allocation code.<br /><br />
+*Make sure you have XQuartz installed locally or failure is assured.<br />
+'''7. Run PuMA:''' <code>./batchPumaInteractive.sh</code><br />
+'''8. Add indels into simulated data to match patterns in empirical data.'''<br />
+*'''a'''). Terminate the interactive session<br />
+*'''b'''). Make sure repMissPatternsVD.py and addBatchMissPatterns.sh are in the main directory.<br />
+*'''c'''). <code>qsub addBatchMissPatterns.pbs</code><br />
+
+
+###Part D. Analyze posterior predictive datasets with MrBayes###
 
 '''Important note:'''<br /> 
 It might be worthwhile to split your analyses into smaller subsets. One (preferred) way to do this is to split your empDataDirectories file into smaller sets. You can do this with the following which will split your empDataDirectories file into sets of 350 lines each and name them empDataDirectories'''aa''', empDataDirectories'''ab''', etc.: <code>split -l 350 empDataDirectories empDataDirectories</code><br />
