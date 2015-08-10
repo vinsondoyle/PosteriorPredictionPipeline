@@ -187,3 +187,31 @@ For example, the following, which should be specified in setupPP_mb.pbs, would s
 *'''a'''). Make sure wq_mb.pbs, wq_mb.sh, and wq.py are all in the main directory (set_a, set_b, etc.).
 *'''b'''). Change into main directory and generate a list of the absolute file paths to each posterior predictive directory that contains the bayesblock (.bb) file and the simulated nexus file: <code>cd set_a && for f in $(cat empDataDirectoriesaa); do baseN=`basename $f`; lst=$(ls -d $f"SeqOutfiles/"*/); for n in $lst; do echo $n$baseN".bb" >> PPDataList; done; done </code><br />
 *'''c'''). Run analyses with wq (don't forget to adjust accordingly). Review PartA2 above for a refresher on wq, read the manual, or contact Vinson. <code>qsub wq_mb.pbs</code><br />
+
+###Part E. Use MrConverge to check convergence and find the appropriate burnin for AMP###
+
+Files needed for Part E:
+*setupPPredMrc_convergence.pbs<br />
+*setupPPredMrc_convergence.sh<br />
+*mrc.conblock<br />
+*wq_mrc.pbs<br />
+*wq_mrc.sh<br />
+*wq.py<br />
+*fileCleanupAfterPP_MRC.pbs<br />
+*fileCleanupAfterPP_MRC.sh<br />
+
+Optional Files:<br />
+*genFileList_PPMRC.sh<br />
+
+'''1. Make sure you have all of the files in the right place and they are set appropriately'''<br />
+*'''a'''). mrc.conblock and MrConverge1b2.5.jar should be in the main directory. <br />
+*'''b'''). Check the *conblock file to make sure that nruns is set to the number of runs that you actually ran for each PP dataset.<br />
+
+'''2. this will run setupPPredMrc_convergence.sh'''<br /> 
+<code>qsub setupPPredMrc_convergence.pbs</code><br />
+'''3. Generate a text file (called PP_MRCDataList) with absolute file paths to the mrc.conblock file which is the input for MrConverge. Do this by using PPDataList (or whatever you called the file with the absolute file paths to your posterior predictive datasets above) as a template:'''<br />
+<code>for p in $(cat PPDataList); do dirN=`dirname $p`; echo $dirN"/mrc.conblock" >> PP_MRCDataList; done</code><br />
+'''4. Run MrConverge with wq_mrc - you should only need to modify the WORKDIR variable in wq_mrc.pbs'''<br />
+<code>qsub wq_mrc.pbs</code><br />
+'''5. Cleanup extraneous files after running wq_mrc so as not to exceed disk quota and speed up the rsync process.'''<br />
+<code>qsub fileCleanupAfterPP_MRC.pbs</code><br />
