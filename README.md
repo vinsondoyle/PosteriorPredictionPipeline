@@ -110,3 +110,39 @@ Alternatively, you can use batchMRC.sh to run it on the linux box in LSB248.
 *'''c''') <code> qsub batchCheckConvergence.pbs </code>
 
 *'''d''') step 3 will generate a text file ("notConverged.txt"). If the MaxBppCI for the statistic corresponding to the maximum Opt Burn value is greater than 0.1 then the MaxBppCI and the path to the mrconverge.log file will be output to this file. This indicates that these runs may not have converged. If there is nothing in "notConverged.txt", then all runs appear to have converged and you can move on to subsampling and simulating posterior predictive datasets.
+
+===Part D. Analyze posterior predictive datasets with MrBayes===
+
+'''Important note:'''<br /> 
+It might be worthwhile to split your analyses into smaller subsets. One (preferred) way to do this is to split your empDataDirectories file into smaller sets. You can do this with the following which will split your empDataDirectories file into sets of 350 lines each and name them empDataDirectories'''aa''', empDataDirectories'''ab''', etc.: <code>split -l 350 empDataDirectories empDataDirectories</code><br />
+Then, make directories to put these subsets: <code>mkdir set_a set_b</code><br />
+Now move the empirical directories into the newly created directories: <br />
+<code>for f in $(cat empDataDirectoriesaa); do mv $f set_a; done</code><br />
+<code>for f in $(cat empDataDirectoriesab); do mv $f set_b; done</code><br />
+<code>mv empDataDirectoriesaa set_a</code><br />
+<code>mv empDataDirectoriesab set_b</code><br />
+
+Alternatively, you could divide the PPDataList (see below) into several separate files of perhaps 5000 lines each and setup multiple wq_mb.pbs files. This is another way you may be able to run several analyses simultaneously and make it thru the list of PP datafiles more efficiently. Alternatively, you can start an analysis with the PPDataList as the input file. After the run has reached the walltime or will not execute any additional tasks because it is expected they will not complete before the walltime is up, you can extract the file names for those that did not run successfully from the output file of the original run and save them into a separate file using the bash commands below.
+
+<br>Files needed for Part D:<br />
+*setupPP_mb.sh<br />
+*setupPP_mb.pbs<br />
+*genFileList_PP.sh<br />
+*wq_mb.pbs<br />
+*wq_mb.sh<br />
+*wq.py<br />
+
+'''1. Setup folders, transfer appropriate bayesblock files and nexus files into those folders.'''<br />
+'''Two things to check:''' <br />
+**This assumes there is a line of the following format in a file ending in ".bb", which is your bayes block file: "mcmc ngen=someNumber samplefreq=someNumber nruns=someNumber nchains=someNumber;"
+**Make sure there is only one file in each empirical data directory that ends in ".bb" <br />
+**You must specify the empDataDirectories filename (argument1), the number of generations for each posterior predictive analysis (argument2), the sample frequency (argument3), the number of runs for each analysis (argument4), the number of mcmc chains per analysis (argument5). <br />
+For example, the following, which should be specified in setupPP_mb.pbs, would setup your posterior predictive runs to be run for 1 million generations, sampling everying 500, 2 independent runs, and 4 mcmc chains per run: <code>./setupPP_mb.sh empDataDirectories 1000000 500 2 4</code><br />
+*'''a'''). Run setupPP_mb.sh - this will setup the posterior predictive datasets to be analyzed.<br />
+<code>qsub setupPP_mb.pbs</code><br />
+**Check setupPP_mb (PBS output file) to see if the script ran up to the walltime. If it does not finish, you can simply run it again and it will skip over any that have been fully setup for further analysis.<br />
+
+'''2. Analyze posterior predictive datasets with MrBayes'''<br />
+*'''a'''). Make sure wq_mb.pbs, wq_mb.sh, and wq.py are all in the main directory (set_a, set_b, etc.).
+*'''b'''). Change into main directory and generate a list of the absolute file paths to each posterior predictive directory that contains the bayesblock (.bb) file and the simulated nexus file: <code>cd set_a && for f in $(cat empDataDirectoriesaa); do baseN=`basename $f`; lst=$(ls -d $f"SeqOutfiles/"*/); for n in $lst; do echo $n$baseN".bb" >> PPDataList; done; done </code><br />
+*'''c'''). Run analyses with wq (don't forget to adjust accordingly). Review PartA2 above for a refresher on wq, read the manual, or contact Vinson. <code>qsub wq_mb.pbs</code><br />
